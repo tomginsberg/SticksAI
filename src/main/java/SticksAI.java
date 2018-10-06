@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class SticksAI {
+public class SticksAI implements SticksPlayer {
     private Map<Integer, List<Integer>> decisionSet = new HashMap<>();
     private Map<Integer,Map<Integer,Double>> strategy = new HashMap<>();
     private int numSticks;
@@ -52,7 +52,7 @@ public class SticksAI {
         Map<Integer,Integer> decisions;
         List<Integer> possibleMoves;
         int randomNum, move, sticksRemaining;
-        GameStatus gameStatus = new GameStatus();
+        Game game = new Game(new RandomPlayer(), 10);
 
         for (int round = 0; round < rounds; round++){
 
@@ -69,20 +69,20 @@ public class SticksAI {
                 sticksRemaining -= move;
 
                 if (sticksRemaining == 0) {
-                    gameStatus.loseGame();
+                    game.loseGame();
                     break;
                 }else if(sticksRemaining == 2){
-                    gameStatus.winGame();
+                    game.winGame();
                     break;
                 } else {
                     sticksRemaining -= ThreadLocalRandom.current().nextInt(1, 4);
                     if (sticksRemaining == 0){
-                        gameStatus.winGame();
+                        game.winGame();
                         break;
                     }
                 }
             }
-            if (gameStatus.isWon()){
+            if (game.isWon()){
                 for(Integer stickNumber : decisions.keySet()){
                     int moveToAdd = decisions.get(stickNumber);
                     List<Integer> newChoices = new ArrayList<>();
@@ -101,6 +101,7 @@ public class SticksAI {
         this.updateStrategy();
     }
 
+    @Override
     public int getMove(int sticksRemaining){
         List<Integer> choices = this.decisionSet.get(sticksRemaining);
         int listSize = choices.size();
