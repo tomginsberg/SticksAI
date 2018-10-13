@@ -15,6 +15,9 @@ public class SticksAI implements SticksPlayer {
     private Map<Integer,Map<Integer,Double>> strategy = new HashMap<>();
     private int numSticks;
 
+    /**
+     * @param numSticks
+     */
     public SticksAI(int numSticks){
 
         this.numSticks = numSticks;
@@ -43,6 +46,10 @@ public class SticksAI implements SticksPlayer {
     }
 
 
+    /**
+     * @param rounds
+     * @param trainer
+     */
     public void train(int rounds, SticksPlayer trainer){
         /* TRAINING ALGORITHM
                 - For simplicity the AI always plays first

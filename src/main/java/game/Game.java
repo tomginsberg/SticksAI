@@ -10,12 +10,22 @@ public class Game {
     private int sticksRemaining;
     private SticksPlayer opponent;
 
+    /**
+     * @param opponent
+     * @param numSticks
+     */
     public Game(SticksPlayer opponent, int numSticks){
         gameSate = 0;
         this.numSticks = numSticks;
         this.sticksRemaining = numSticks;
         this.opponent = opponent;
     }
+
+    /**
+     * @param draw
+     * @throws IllegalMoveException
+     * @throws GameFinishedException
+     */
     public void playMove(int draw) throws IllegalMoveException, GameFinishedException {
         if(inProgress()) {
             if (sticksRemaining < draw) {
@@ -29,6 +39,11 @@ public class Game {
             throw new GameFinishedException();
         }
     }
+
+    /**
+     * @throws IllegalMoveException
+     * @throws GameFinishedException
+     */
     public void playOpponentMove() throws IllegalMoveException, GameFinishedException {
         if(inProgress()) {
             int opponentMove = opponent.getMove(sticksRemaining);
