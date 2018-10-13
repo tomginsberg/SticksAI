@@ -1,5 +1,13 @@
+package game;
+
+import exceptions.GameFinishedException;
+import exceptions.IllegalMoveException;
+import players.SticksPlayer;
+
 public class Game {
-    private int gameSate, numSticks, sticksRemaining, opponentMove;
+    private int gameSate;
+    private int numSticks;
+    private int sticksRemaining;
     private SticksPlayer opponent;
 
     public Game(SticksPlayer opponent, int numSticks){
@@ -16,13 +24,21 @@ public class Game {
             }
             sticksRemaining -= draw;
             if (sticksRemaining == 0) loseGame();
-            opponentMove = opponent.getMove(sticksRemaining);
-            if (opponentMove < sticksRemaining) {
+
+        }else {
+            throw new GameFinishedException();
+        }
+    }
+    public void playOpponentMove() throws IllegalMoveException, GameFinishedException {
+        if(inProgress()) {
+            int opponentMove = opponent.getMove(sticksRemaining);
+            if (opponentMove > sticksRemaining) {
                 System.out.println("Illegal Opponent Move");
                 throw new IllegalMoveException();
             }
             sticksRemaining -= opponentMove;
             if (sticksRemaining == 0) winGame();
+
         }else {
             throw new GameFinishedException();
         }
@@ -50,5 +66,9 @@ public class Game {
 
     public boolean inProgress() {
         return gameSate == 0;
+    }
+    public void newGame(){
+        this.gameSate = 0;
+        this.sticksRemaining = this.numSticks;
     }
 }

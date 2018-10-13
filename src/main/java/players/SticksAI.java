@@ -1,3 +1,9 @@
+package players;
+
+import exceptions.GameFinishedException;
+import exceptions.IllegalMoveException;
+import game.Game;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -12,9 +18,11 @@ public class SticksAI implements SticksPlayer {
     public SticksAI(int numSticks){
 
         this.numSticks = numSticks;
-        IntStream.rangeClosed(3, numSticks).forEach(i -> this.decisionSet.put(i, IntStream.range(1, 4).boxed().collect(Collectors.toList())));
-        this.decisionSet.put(1, IntStream.range(1, 2).boxed().collect(Collectors.toList()));
-        this.decisionSet.put(2, IntStream.range(1, 3).boxed().collect(Collectors.toList()));
+        IntStream.rangeClosed(5, numSticks).forEach(i -> this.decisionSet.put(i, IntStream.range(1, 4).boxed().collect(Collectors.toList())));
+        this.decisionSet.put(1, new ArrayList<>(Collections.singletonList(1)));
+        this.decisionSet.put(2, new ArrayList<>(Collections.singletonList(1)));
+        this.decisionSet.put(3, new ArrayList<>(Collections.singletonList(2)));
+        this.decisionSet.put(4, new ArrayList<>(Collections.singletonList(3)));
         this.updateStrategy();
     }
 
@@ -35,7 +43,7 @@ public class SticksAI implements SticksPlayer {
     }
 
 
-    public void train(int rounds){
+    public void train(int rounds, SticksPlayer trainer){
         /* TRAINING ALGORITHM
                 - For simplicity the AI always plays first
                 - The AI can make a choice of drawing 1, 2, or 3 sticks on each round
@@ -49,39 +57,46 @@ public class SticksAI implements SticksPlayer {
                 -The AI trains against a random opponent, but it may be interesting to train it against another AI, that has either already been trained already,
                  or trains in parallel!
          */
-        Map<Integer,Integer> decisions;
+        Map<Integer,Integer> decisions = new HashMap<>();
         List<Integer> possibleMoves;
-        int randomNum, move, sticksRemaining;
-        Game game = new Game(new RandomPlayer(), 10);
+        int randomNum, move;
+        Game game = new Game(trainer, this.numSticks);
 
         for (int round = 0; round < rounds; round++){
 
-            sticksRemaining = this.numSticks;
-            decisions = new HashMap<>();
+            decisions.clear();
+            int state = ThreadLocalRandom.current().nextInt(0, 2);
 
-            while (sticksRemaining > 0){
+            while (game.inProgress()){
+                switch (state){
+                    case 0:
+                        possibleMoves = decisionSet.get(game.getNumSticksLeft());
+                        randomNum = ThreadLocalRandom.current().nextInt(0, possibleMoves.size());
+                        move = possibleMoves.get(randomNum);
+                        decisions.put(game.getNumSticksLeft(),move);
+                        possibleMoves.remove(randomNum);
 
-                possibleMoves = decisionSet.get(sticksRemaining);
-                randomNum = ThreadLocalRandom.current().nextInt(0, possibleMoves.size());
-                move = possibleMoves.get(randomNum);
-                decisions.put(sticksRemaining,move);
-                possibleMoves.remove(randomNum);
-                sticksRemaining -= move;
-
-                if (sticksRemaining == 0) {
-                    game.loseGame();
-                    break;
-                }else if(sticksRemaining == 2){
-                    game.winGame();
-                    break;
-                } else {
-                    sticksRemaining -= ThreadLocalRandom.current().nextInt(1, 4);
-                    if (sticksRemaining == 0){
-                        game.winGame();
+                        try {
+                            game.playMove(move);
+                        } catch (IllegalMoveException | GameFinishedException e) {
+                            e.printStackTrace();
+                        }
+                        state = 1;
                         break;
-                    }
+
+                    case 1:
+
+                        try {
+                                game.playOpponentMove();
+                        } catch (IllegalMoveException | GameFinishedException e) {
+                            e.printStackTrace();
+                        }
+                        state = 0;
+                        break;
                 }
-            }
+
+
+                }
             if (game.isWon()){
                 for(Integer stickNumber : decisions.keySet()){
                     int moveToAdd = decisions.get(stickNumber);
@@ -97,9 +112,11 @@ public class SticksAI implements SticksPlayer {
                     }
                 }
             }
+            game.newGame();
         }
         this.updateStrategy();
     }
+
 
     @Override
     public int getMove(int sticksRemaining){
