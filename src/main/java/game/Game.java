@@ -9,16 +9,22 @@ public class Game {
     private int numSticks;
     private int sticksRemaining;
     private SticksPlayer opponent;
+    private boolean statusUpdates;
 
     /**
      * @param opponent
      * @param numSticks
      */
-    public Game(SticksPlayer opponent, int numSticks){
+    public Game(SticksPlayer opponent, int numSticks, boolean statusUpdates){
         gameSate = 0;
         this.numSticks = numSticks;
         this.sticksRemaining = numSticks;
         this.opponent = opponent;
+        this.statusUpdates = statusUpdates;
+    }
+
+    public void endGame(){
+        this.opponent.endGame();
     }
 
     /**
@@ -28,11 +34,14 @@ public class Game {
      */
     public void playMove(int draw) throws IllegalMoveException, GameFinishedException {
         if(inProgress()) {
-            if (sticksRemaining < draw) {
+            if (sticksRemaining < draw || draw > 3 || draw < 1) {
                 System.out.println("Illegal Player Move");
                 throw new IllegalMoveException();
             }
             sticksRemaining -= draw;
+            if(statusUpdates){
+                System.out.printf("Player drew %d sticks\n",draw);
+            }
             if (sticksRemaining == 0) loseGame();
 
         }else {
@@ -47,11 +56,14 @@ public class Game {
     public void playOpponentMove() throws IllegalMoveException, GameFinishedException {
         if(inProgress()) {
             int opponentMove = opponent.getMove(sticksRemaining);
-            if (opponentMove > sticksRemaining) {
+            if (opponentMove > sticksRemaining || opponentMove > 3 || opponentMove < 1) {
                 System.out.println("Illegal Opponent Move");
                 throw new IllegalMoveException();
             }
             sticksRemaining -= opponentMove;
+            if(statusUpdates){
+                System.out.printf("Opponent drew %d sticks\n", opponentMove);
+            }
             if (sticksRemaining == 0) winGame();
 
         }else {
@@ -72,7 +84,16 @@ public class Game {
     }
 
     public boolean isWon(){
-        return gameSate == 2;
+        boolean finalStatus = (gameSate == 2);
+        if(statusUpdates){
+            if (finalStatus){
+                System.out.println("\nThe player has won the game!");
+            }
+            else {
+                System.out.println("\nThe opponent has won the game!");
+            }
+        }
+        return finalStatus;
     }
 
     public boolean isLost(){

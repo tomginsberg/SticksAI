@@ -1,20 +1,20 @@
 import game.AutoGame;
 import org.junit.Test;
 import players.RandomPlayer;
-import players.SticksAI;
+import players.AIPlayer;
 import org.junit.Assert;
 
 import java.util.stream.IntStream;
 
-public class SticksAITest {
+public class AIPlayerTest {
 
     @Test
     public void aiTest(){
-        SticksAI sticksAI = new SticksAI(50);
-        sticksAI.train(100, new RandomPlayer());
-        SticksAI betterAI = new SticksAI(50);
-        betterAI.train(5, sticksAI);
-        AutoGame autoGame = new AutoGame(sticksAI, 50);
+        AIPlayer AIPlayer = new AIPlayer(50);
+        AIPlayer.train(100, new RandomPlayer());
+        AIPlayer betterAI = new AIPlayer(50);
+        betterAI.train(5, AIPlayer);
+        AutoGame autoGame = new AutoGame(AIPlayer, 50, false);
 
         int wins;
         int rounds = 100;

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class SticksAI implements SticksPlayer {
+public class AIPlayer implements SticksPlayer {
     private Map<Integer, List<Integer>> decisionSet = new HashMap<>();
     private Map<Integer,Map<Integer,Double>> strategy = new HashMap<>();
     private int numSticks;
@@ -18,7 +18,7 @@ public class SticksAI implements SticksPlayer {
     /**
      * @param numSticks
      */
-    public SticksAI(int numSticks){
+    public AIPlayer(int numSticks){
 
         this.numSticks = numSticks;
         IntStream.rangeClosed(5, numSticks).forEach(i -> this.decisionSet.put(i, IntStream.range(1, 4).boxed().collect(Collectors.toList())));
@@ -35,7 +35,7 @@ public class SticksAI implements SticksPlayer {
     }
 
     private void updateStrategy(){
-        this.decisionSet.keySet().forEach(turnNumber -> this.strategy.put(turnNumber, SticksAI.probDist(this.decisionSet.get(turnNumber))));
+        this.decisionSet.keySet().forEach(turnNumber -> this.strategy.put(turnNumber, AIPlayer.probDist(this.decisionSet.get(turnNumber))));
     }
     private static Map<Integer,Double> probDist(List<Integer> moves){
         Map<Integer,Double> probDist = IntStream.range(1, 4).boxed().collect(Collectors.toMap(i -> i, i -> 0.0, (a, b) -> b));
@@ -67,7 +67,7 @@ public class SticksAI implements SticksPlayer {
         Map<Integer,Integer> decisions = new HashMap<>();
         List<Integer> possibleMoves;
         int randomNum, move;
-        Game game = new Game(trainer, this.numSticks);
+        Game game = new Game(trainer, this.numSticks, false);
 
         for (int round = 0; round < rounds; round++){
 
@@ -130,6 +130,12 @@ public class SticksAI implements SticksPlayer {
         List<Integer> choices = this.decisionSet.get(sticksRemaining);
         int listSize = choices.size();
         return choices.get(ThreadLocalRandom.current().nextInt(0, listSize));
+    }
+
+    //Called when a game is finished. Although here we don't want to do anything
+    @Override
+    public void endGame() {
+
     }
 
 }

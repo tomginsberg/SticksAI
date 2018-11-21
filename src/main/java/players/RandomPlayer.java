@@ -9,4 +9,9 @@ public class RandomPlayer implements SticksPlayer {
                 .nextInt(1, sticksRemaining + 1);
         else return ThreadLocalRandom.current().nextInt(1, 4);
     }
+
+    @Override
+    public void endGame() {
+
+    }
 }

@@ -10,8 +10,8 @@ public class AutoGame extends Game {
 
     private int state;
 
-    public AutoGame(SticksPlayer opponent, int numSticks) {
-        super(opponent, numSticks);
+    public AutoGame(SticksPlayer opponent, int numSticks, boolean statusUpdates) {
+        super(opponent, numSticks, statusUpdates);
         this.state = ThreadLocalRandom.current().nextInt(0, 2);
     }
     public boolean play(SticksPlayer player){
@@ -33,6 +33,8 @@ public class AutoGame extends Game {
             }
 
         }
+        player.endGame();
+        this.endGame();
         return this.isWon();
     }
 }
